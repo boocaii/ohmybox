@@ -1,16 +1,65 @@
-const { app, BrowserWindow } = require('electron');
+const { app, nativeTheme, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const fs = require('fs');
+const { spawn }= require('child_process');
+const { fileIconToBuffer } = require('file-icon');
+
+const WIDTH = 800;
+const HBASE = 60;
+let mainWindow;
+
+nativeTheme.themeSource = 'light';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
+// An app name can be used
+fileIconToBuffer('Safari').then((buffer) => {
+  fs.writeFile('safari-icon.png', buffer, ()=>{});
+});
+
+const listApps = () => {
+  const dir = '/Applications';
+  fs.readdir(dir, (err, files) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+
+    for (const file of files) {
+      const stats = fs.statSync(path.join(dir, file));
+      if (file.endsWith('.app') && stats.isDirectory()) {
+        console.log(file);
+      }
+    }
+  })
+
+  const cmd = spawn('open', ['-a', 'Sublime Text.app']);
+  cmd.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+  });
+  
+  cmd.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
+  
+  cmd.on('close', (code) => {
+    console.log(`child process exited with code ${code}`);
+  });
+};
+
 const createWindow = () => {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+  mainWindow = new BrowserWindow({
+    width: WIDTH,
+    height: HBASE,
+    resizable: false,
+    frame: false,
+    transparent: true,
+    titleBarStyle: 'customButtonsOnHover',
+    trafficLightPosition: { x: -10, y: -10 },
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
@@ -26,7 +75,10 @@ const createWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', () => {
+  createWindow();
+  listApps();
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -47,3 +99,15 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+ipcMain.handle('hello', (event, text) => {
+  const randomInt = Math.floor(Math.random() * 6);
+  const res = [];
+  for (let i = 0; i < randomInt; i++) res.push({ key: i, value: `hello 0${i}` })
+  return res;
+});
+
+
+ipcMain.handle('setRowsNum', (event, n) => {
+  mainWindow?.setSize(WIDTH, HBASE * (n + 1), true);
+});

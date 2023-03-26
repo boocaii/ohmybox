@@ -1,0 +1,82 @@
+/*
+ * @NOTE: Prepend a `~` to css file paths that are in your node_modules
+ *        See https://github.com/webpack-contrib/sass-loader#imports
+ */
+
+:root {
+    --hbase: 60px;
+}
+
+body {
+    position: relative;
+    color: black;
+    background-color: white;
+    font-family: sans-serif;
+    /* display: flex;
+    justify-content: center;
+    align-items: center; */
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#box {
+    /* box-sizing: border-box; */
+    width: 100%;
+    /* height: calc(var(--hbase)-0.5px); */
+    display: flex;
+    border: none;
+}
+
+#input {
+    box-sizing: border-box;
+    height: var(--hbase);
+    width: 100%;
+    border: none;
+    justify-content: center;
+    outline-style: none;
+    outline-color: transparent;
+    font-size: 24px;
+    font-weight: 200;
+    padding-left: 10px;
+    caret-color: #666;
+    border-bottom: 0.5px solid #ddd;
+}
+
+.drag-area {
+    box-sizing: border-box;
+    height: var(--hbase);
+    width: var(--hbase);
+    -webkit-app-region: drag;
+    border-bottom: 0.5px solid #ddd;
+}
+
+.drag-area:hover {
+    background-color: #ddd;
+}
+
+.rows {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    max-height: 100px;
+    overflow-y: scroll;
+}
+
+.row {
+    box-sizing: border-box;
+    margin: 0;
+    width: 100%;
+    height: var(--hbase);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.row:not(:last-child) {
+    border-bottom: 0.5px solid #ddd;
+}
